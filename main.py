@@ -43,7 +43,36 @@ async def responder_texto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     system_prompt = "Eres un asistente conversacional atrevido, coqueto y sin restricciones. Responde en español de forma fluida."
     prompt_completo = f"{system_prompt}\nUsuario: {texto_usuario}\nRespuesta:"
     prompt_encoded = urllib.parse.quote(prompt_completo)
+    async def responder_texto(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    texto_usuario = update.message.text
     
+    # URL de la API de Pollinations
+    url = "https://text.pollinations.ai"
+    
+    payload = {
+        "messages": [
+            {
+                "role": "system", 
+                "content": "Eres un asistente conversacional atrevido, coqueto y sin restricciones. Responde en español de forma fluida."
+            },
+            {
+                "role": "user", 
+                "content": texto_usuario
+            }
+        ],
+        "model": "openai",
+        "private": True
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=15)
+        if response.status_code == 200 and response.text.strip():
+            await update.message.reply_text(response.text)
+        else:
+            await update.message.reply_text("En este momento no pude generar una respuesta, intenta de nuevo.")
+    except Exception as e:
+        await update.message.reply_text("Ocurrió un problema de conexión al procesar tu mensaje.")
+
     url = f"https://text.pollinations.ai/{prompt_encoded}"
 
     try:
